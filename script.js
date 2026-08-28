@@ -131,21 +131,28 @@ function setMusicPlayingState(isPlaying) {
   }
 }
 
+async function startMusic() {
+  if (playing) return;
+
+  try {
+    if (music && music.src) {
+      await music.play();
+    } else {
+      playCelebrationMelody();
+    }
+
+    setMusicPlayingState(true);
+  } catch (error) {
+    if (musicStatus) {
+      musicStatus.textContent = "Tap, click, or press a key to start the soundtrack.";
+    }
+  }
+}
+
 if (musicButton) {
   musicButton.addEventListener("click", async () => {
     if (!playing) {
-      try {
-        if (music && music.src) {
-          await music.play();
-        } else {
-          playCelebrationMelody();
-        }
-
-        setMusicPlayingState(true);
-      } catch (error) {
-        playCelebrationMelody();
-        setMusicPlayingState(true);
-      }
+      await startMusic();
     } else {
       if (music) {
         music.pause();
@@ -167,23 +174,12 @@ window.addEventListener("load", () => {
   }
 
   if (musicButton) {
-    const startAutoMusic = async () => {
-      try {
-        if (music && music.src) {
-          await music.play();
-          setMusicPlayingState(true);
-          return;
-        }
-      } catch (error) {
-        if (musicStatus) {
-          musicStatus.textContent = "Tap play to start the soundtrack.";
-        }
-      }
-    };
-
-    startAutoMusic();
+    startMusic();
   }
 });
+
+document.addEventListener("pointerdown", startMusic, { once: true });
+document.addEventListener("keydown", startMusic, { once: true });
 
 /* ================= PHOTO UPLOAD ================= */
 const photoUpload = document.getElementById("photoUpload");
